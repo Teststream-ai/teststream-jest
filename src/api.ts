@@ -1,13 +1,16 @@
 import axios from 'axios';
+import Logger from './lib/logger';
 
 class TestStreamAPI {
   private serverUrl: string;
   private apiKey: string;
+  private logger: Logger
 
 
-  constructor(apiKey: string, serverUrl: string = 'https://api.teststream.ai') {
+  constructor(apiKey: string,  logger: Logger, serverUrl: string) {
     this.apiKey = apiKey;
     this.serverUrl = serverUrl;
+    this.logger = logger
   }
 
   public async createProject(data: any): Promise<any> {
@@ -27,7 +30,8 @@ class TestStreamAPI {
       );
       return response.data;
     } catch (error) {
-      console.error('Error fetching data: ', error);
+      this.logger.error("Failed to get project. Run data won't be published")
+      //console.error('Error fetching data: ', error);
     }
   }
 
@@ -40,7 +44,7 @@ class TestStreamAPI {
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching data: ', error);
+      this.logger.error("Failed to create run!")
     }
   }
 
@@ -53,7 +57,7 @@ class TestStreamAPI {
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching data: ', error);
+      this.logger.error("Failed to create run data");
     }
   }
 
@@ -70,7 +74,7 @@ class TestStreamAPI {
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching data: ', error);
+      this.logger.error("Failed to get spec ID");
     }
   }
 
@@ -83,7 +87,7 @@ class TestStreamAPI {
       });
       return response.data;
     } catch (error) {
-      console.error('Error fetching data: ', error);
+      this.logger.error("Failed to publish test results");
     }
   }
 }

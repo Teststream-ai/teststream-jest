@@ -24,9 +24,10 @@ export default class TeststreamReporter implements Reporter {
   // Add the config to our constructor
   constructor(private config: Config.InitialOptions, options: any, runName: string) {
     this._options = options;
-    this.api = new TestStreamAPI(options.apiKey);
-    this.runName = this._options.runName;
+    const api = options.serverUrl || 'https://api.mayven.one';
     this.logger = new Logger();
+    this.api = new TestStreamAPI(options.apiKey, this.logger, api);
+    this.runName = this._options.runName;
   }
 
   private async init() {

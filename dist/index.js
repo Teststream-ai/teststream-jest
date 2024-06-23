@@ -49,9 +49,9 @@ var TeststreamReporter = /** @class */ (function () {
     function TeststreamReporter(config, options, runName) {
         this.config = config;
         this._options = options;
-        this.api = new api_1.default(options.apiKey);
-        this.runName = this._options.runName;
         this.logger = new logger_1.default();
+        this.api = new api_1.default(options.apiKey, this.logger);
+        this.runName = this._options.runName;
     }
     TeststreamReporter.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {

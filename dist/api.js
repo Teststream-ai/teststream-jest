@@ -41,10 +41,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
 var TestStreamAPI = /** @class */ (function () {
-    function TestStreamAPI(apiKey, serverUrl) {
-        if (serverUrl === void 0) { serverUrl = 'https://api.teststream.ai'; }
+    function TestStreamAPI(apiKey, logger, serverUrl) {
+        if (serverUrl === void 0) { serverUrl = 'https://api.mayven.one'; }
         this.apiKey = apiKey;
         this.serverUrl = serverUrl;
+        this.logger = logger;
     }
     TestStreamAPI.prototype.createProject = function (data) {
         return __awaiter(this, void 0, void 0, function () {
@@ -76,7 +77,7 @@ var TestStreamAPI = /** @class */ (function () {
                         return [2 /*return*/, response.data];
                     case 2:
                         error_1 = _a.sent();
-                        console.error('Error fetching data: ', error_1);
+                        this.logger.error("Failed to get project. Run data won't be published");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -100,7 +101,7 @@ var TestStreamAPI = /** @class */ (function () {
                         return [2 /*return*/, response.data];
                     case 2:
                         error_2 = _a.sent();
-                        console.error('Error fetching data: ', error_2);
+                        this.logger.error("Failed to create run!");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -124,7 +125,7 @@ var TestStreamAPI = /** @class */ (function () {
                         return [2 /*return*/, response.data];
                     case 2:
                         error_3 = _a.sent();
-                        console.error('Error fetching data: ', error_3);
+                        this.logger.error("Failed to create run data");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -152,7 +153,7 @@ var TestStreamAPI = /** @class */ (function () {
                         return [2 /*return*/, response.data];
                     case 2:
                         error_4 = _a.sent();
-                        console.error('Error fetching data: ', error_4);
+                        this.logger.error("Failed to get spec ID");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -176,7 +177,7 @@ var TestStreamAPI = /** @class */ (function () {
                         return [2 /*return*/, response.data];
                     case 2:
                         error_5 = _a.sent();
-                        console.error('Error fetching data: ', error_5);
+                        this.logger.error("Failed to publish test results");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }

@@ -1,7 +1,9 @@
+import Logger from './lib/logger';
 declare class TestStreamAPI {
     private serverUrl;
     private apiKey;
-    constructor(apiKey: string, serverUrl?: string);
+    private logger;
+    constructor(apiKey: string, logger: Logger, serverUrl?: string);
     createProject(data: any): Promise<any>;
     getProjectBySlug(slugId: string): Promise<any[] | undefined>;
     createRun(data: any): Promise<any | undefined>;
