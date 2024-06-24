@@ -44,18 +44,18 @@ var scan_1 = require("./lib/scan");
 var logger_1 = __importDefault(require("./lib/logger"));
 var status_1 = require("./lib/status");
 var TeststreamReporter = /** @class */ (function () {
-    // protected _globalConfig: Config.GlobalConfig;
-    // Add the config to our constructor
     function TeststreamReporter(config, options, runName) {
         this.config = config;
         this._options = options;
+        var api = options.serverUrl || 'https://api.mayven.one';
         this.logger = new logger_1.default();
-        this.api = new api_1.default(options.apiKey, this.logger);
+        this.api = new api_1.default(options.apiKey, this.logger, api);
         this.runName = this._options.runName;
+        this.initPromise = this.init();
     }
     TeststreamReporter.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var projectId, data_1, error_1, runDetails, error_2, a, body, data;
+            var projectId, data, error_1, runDetails, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -67,9 +67,9 @@ var TeststreamReporter = /** @class */ (function () {
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, this.api.getProjectBySlug(this._options.projectID)];
                     case 2:
-                        data_1 = _a.sent();
-                        process.env['PROJECT_ID'] = data_1 === null || data_1 === void 0 ? void 0 : data_1.id;
-                        this.logger.info("Project found. Using ".concat(data_1.name, " project with slug ").concat(data_1.slug, "."));
+                        data = _a.sent();
+                        process.env['PROJECT_ID'] = data === null || data === void 0 ? void 0 : data.id;
+                        this.logger.info("Project found. Using ".concat(data.name, " project with slug ").concat(data.slug, "."));
                         return [3 /*break*/, 4];
                     case 3:
                         error_1 = _a.sent();
@@ -88,6 +88,7 @@ var TeststreamReporter = /** @class */ (function () {
                     case 7:
                         runDetails = _a.sent();
                         process.env['RUN_ID'] = runDetails.id;
+                        this.runId = runDetails.id;
                         return [3 /*break*/, 9];
                     case 8:
                         error_2 = _a.sent();
@@ -95,15 +96,6 @@ var TeststreamReporter = /** @class */ (function () {
                         return [3 /*break*/, 9];
                     case 9:
                         this.logger.info("New run successfully created. Run name ".concat(runDetails.name));
-                        return [4 /*yield*/, (0, scan_1.scanTestFiles)()];
-                    case 10:
-                        a = _a.sent();
-                        body = a.map(function (item) {
-                            return { runId: process.env.RUN_ID, spec: item };
-                        });
-                        return [4 /*yield*/, this.api.createRunSpecBulk(body)];
-                    case 11:
-                        data = _a.sent();
                         return [2 /*return*/];
                 }
             });
@@ -111,17 +103,21 @@ var TeststreamReporter = /** @class */ (function () {
     };
     TeststreamReporter.prototype.onTestFileResult = function (test, testResult, aggregatedResult) {
         return __awaiter(this, void 0, void 0, function () {
-            var path, b, results;
+            var path, data, results;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        path = (0, scan_1.getPathDifference)(process.cwd(), testResult.testFilePath).path2Difference;
-                        return [4 /*yield*/, this.api.findUniqueSpec(process.env.RUN_ID, path)];
+                    case 0: return [4 /*yield*/, this.initPromise];
                     case 1:
-                        b = _a.sent();
-                        results = extractTestResults(testResult.testResults, b.id);
-                        return [4 /*yield*/, this.api.createBulkTestResults(results)];
+                        _a.sent();
+                        path = (0, scan_1.getPathDifference)(process.cwd(), testResult.testFilePath).path2Difference;
+                        return [4 /*yield*/, this.api.createRunSpec({ runId: this.runId, spec: path })];
                     case 2:
+                        data = _a.sent();
+                        return [4 /*yield*/, extractTestResults(testResult.testResults, data.id)];
+                    case 3:
+                        results = _a.sent();
+                        return [4 /*yield*/, this.api.createBulkTestResults(results)];
+                    case 4:
                         _a.sent();
                         this.logger.info("Run spec completed. Results of test ".concat(path, " can be found here."));
                         return [2 /*return*/];
@@ -130,28 +126,33 @@ var TeststreamReporter = /** @class */ (function () {
         });
     };
     TeststreamReporter.prototype.onRunStart = function (results, options) {
-        this.init();
         this.logger.info('Run started');
     };
     TeststreamReporter.prototype.onRunComplete = function (context, results) {
         this.logger.info('Run successfully complete. Results are uploaded to Teststream');
+        this.api.completeRun(this.runId);
     };
     return TeststreamReporter;
 }());
 exports.default = TeststreamReporter;
-var extractTestResults = function (testResults, runSpecId) {
-    return testResults.map(function (item) {
-        return {
-            runSpecId: runSpecId,
-            title: item.title,
-            fullTitle: item.fullName,
-            duration: item.duration,
-            status: (0, status_1.statusMapping)(item.status),
-            suite: item.ancestorTitles[0],
-            error: item.failureMessages[0] && stripAnsiCodes(item.failureMessages[0]),
-        };
+var extractTestResults = function (testResults, runSpecId) { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, testResults.map(function (item) {
+                    return {
+                        runSpecId: runSpecId,
+                        title: item.title,
+                        fullTitle: item.fullName,
+                        duration: item.duration,
+                        status: (0, status_1.statusMapping)(item.status),
+                        suite: item.ancestorTitles[0],
+                        error: item.failureMessages[0] && stripAnsiCodes(item.failureMessages[0]),
+                    };
+                })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
+}); };
 function stripAnsiCodes(str) {
     // Regular expression to match ANSI escape codes
     var ansiRegex = /\x1B\[[0-9;]*[a-zA-Z]/g;

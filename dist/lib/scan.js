@@ -42,8 +42,8 @@ var util = require('util');
 var execAsync = util.promisify(exec);
 var path = require('path');
 function extractAndProcessFilenames(paths) {
-    return paths.map(function (path) {
-        return path.startsWith('./') ? path.slice(2) : path;
+    return paths.map(function (filePath) {
+        return filePath.startsWith('./') ? filePath.slice(2) : filePath;
     });
 }
 function scanTestFiles() {
@@ -53,7 +53,7 @@ function scanTestFiles() {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, execAsync('find . -type f -name "*.spec.*"')];
+                    return [4 /*yield*/, execAsync('find . -type f -name "*.test.*" -not -path "./node_modules/*" -not -path "./reports/*"')];
                 case 1:
                     stdout = (_a.sent()).stdout;
                     files = stdout.split('\n').filter(function (line) { return line !== ''; });

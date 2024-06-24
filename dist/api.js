@@ -42,7 +42,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
 var TestStreamAPI = /** @class */ (function () {
     function TestStreamAPI(apiKey, logger, serverUrl) {
-        if (serverUrl === void 0) { serverUrl = 'https://api.mayven.one'; }
         this.apiKey = apiKey;
         this.serverUrl = serverUrl;
         this.logger = logger;
@@ -108,9 +107,37 @@ var TestStreamAPI = /** @class */ (function () {
             });
         });
     };
-    TestStreamAPI.prototype.createRunSpecBulk = function (data) {
+    TestStreamAPI.prototype.completeRun = function (runId) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_3;
+            var body, response, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        body = {};
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, axios_1.default.post(this.serverUrl + "/api/runs/".concat(runId, "/complete"), body, {
+                                headers: {
+                                    'x-teststream-api-key': this.apiKey,
+                                }
+                            })];
+                    case 2:
+                        response = _a.sent();
+                        return [2 /*return*/, response.data];
+                    case 3:
+                        error_3 = _a.sent();
+                        console.log(error_3);
+                        this.logger.error("Failed to complete run!");
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    TestStreamAPI.prototype.createRunSpec = function (data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -124,7 +151,7 @@ var TestStreamAPI = /** @class */ (function () {
                         response = _a.sent();
                         return [2 /*return*/, response.data];
                     case 2:
-                        error_3 = _a.sent();
+                        error_4 = _a.sent();
                         this.logger.error("Failed to create run data");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -134,7 +161,7 @@ var TestStreamAPI = /** @class */ (function () {
     };
     TestStreamAPI.prototype.findUniqueSpec = function (runId, spec) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_4;
+            var response, error_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -152,7 +179,7 @@ var TestStreamAPI = /** @class */ (function () {
                         response = _a.sent();
                         return [2 /*return*/, response.data];
                     case 2:
-                        error_4 = _a.sent();
+                        error_5 = _a.sent();
                         this.logger.error("Failed to get spec ID");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -162,7 +189,7 @@ var TestStreamAPI = /** @class */ (function () {
     };
     TestStreamAPI.prototype.createBulkTestResults = function (data) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_5;
+            var response, error_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -176,7 +203,7 @@ var TestStreamAPI = /** @class */ (function () {
                         response = _a.sent();
                         return [2 /*return*/, response.data];
                     case 2:
-                        error_5 = _a.sent();
+                        error_6 = _a.sent();
                         this.logger.error("Failed to publish test results");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];

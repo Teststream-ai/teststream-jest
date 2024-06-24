@@ -4,19 +4,19 @@ const execAsync = util.promisify(exec);
 const path = require('path');
 
 function extractAndProcessFilenames(paths) {
-  return paths.map(path => {
-    return path.startsWith('./') ? path.slice(2) : path;
+  return paths.map(filePath => {
+    return filePath.startsWith('./') ? filePath.slice(2) : filePath;
   });
 }
 
 export async function scanTestFiles() {
   try {
-    const { stdout } = await execAsync('find . -type f -name "*.spec.*"');
+    // Update the find command to exclude node_modules and reports directories
+    const { stdout } = await execAsync('find . -type f -name "*.test.*" -not -path "./node_modules/*" -not -path "./reports/*"');
     const files = stdout.split('\n').filter(line => line !== '');
     let updatedFileNames = extractAndProcessFilenames(files);
     
     return updatedFileNames;
-
   } catch (error) {
     console.error('Error generating test files list:', error);
   }
@@ -26,8 +26,6 @@ export async function scanTestFiles() {
 (async () => {
   const files = await scanTestFiles();
 })();
-
-
 
 export function getPathDifference(path1, path2) {
   // Normalize the paths to avoid issues with different separators

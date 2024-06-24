@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Logger from './lib/logger';
+import { config } from 'process';
 
 class TestStreamAPI {
   private serverUrl: string;
@@ -31,7 +32,6 @@ class TestStreamAPI {
       return response.data;
     } catch (error) {
       this.logger.error("Failed to get project. Run data won't be published")
-      //console.error('Error fetching data: ', error);
     }
   }
 
@@ -48,7 +48,22 @@ class TestStreamAPI {
     }
   }
 
-  public async createRunSpecBulk(data: any): Promise<any | undefined> {
+  public async completeRun(runId: string): Promise<any | undefined> {
+    const body = {}
+    try {
+      const response = await axios.post(this.serverUrl + `/api/runs/${runId}/complete`, body, {
+        headers: { 
+          'x-teststream-api-key': this.apiKey,
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.log(error)
+      this.logger.error("Failed to complete run!")
+    }
+  }
+
+  public async createRunSpec(data: any): Promise<any | undefined> {
     try {
       const response = await axios.post(this.serverUrl + '/api/run-spec', data, {
         headers: {

@@ -7,6 +7,8 @@ export default class TeststreamReporter implements Reporter {
     protected logger: any;
     protected _options?: any;
     private runName;
+    private runId;
+    private initPromise;
     constructor(config: Config.InitialOptions, options: any, runName: string);
     private init;
     onTestFileResult(test: Test, testResult: TestResult, aggregatedResult: AggregatedResult): Promise<void>;
